@@ -15,23 +15,6 @@ data class LoginResponse(
 )
 
 @Serializable
-data class PartResponse(
-    val id: Int,
-    val name: String,
-    val category: String,
-    val brand: String,
-    val price: Double,
-    val specs: String,
-    val imageUrl: String,
-    val releaseYear: Int
-)
-
-@Serializable
-data class ErrorResponse(
-    val error: String,
-    val message: String
-)
-@Serializable
 data class RegisterRequest(
     val username: String,
     val password: String
@@ -41,4 +24,73 @@ data class RegisterRequest(
 data class RegisterResponse(
     val message: String,
     val username: String
+)
+
+@Serializable
+data class PartResponse(
+    val id: Int,
+    val name: String,
+    val category: String,
+    val brand: String,
+    val price: Double,
+    val specs: String,
+    val imageUrl: String,
+    val releaseYear: Int,
+    val details: List<PartDetailResponse> = emptyList()
+)
+
+@Serializable
+data class PartDetailResponse(
+    val id: String,
+    val specification: String,
+    val value: String
+)
+
+@Serializable
+data class FilterRequest(
+    val categories: List<String>? = null,
+    val brands: List<String>? = null,
+    val minPrice: Double? = null,
+    val maxPrice: Double? = null,
+    val minYear: Int? = null,
+    val maxYear: Int? = null,
+    val sortBy: String? = null,
+    val sortDirection: String? = null,
+    val page: Int = 1,
+    val pageSize: Int = 20
+)
+
+@Serializable
+data class FilterResponse(
+    val items: List<PartResponse>,
+    val totalCount: Int,
+    val page: Int,
+    val pageSize: Int,
+    val totalPages: Int
+)
+
+@Serializable
+data class FiltersMetaResponse(
+    val categories: List<String>,
+    val brands: List<String>,
+    val priceRange: PriceRange,
+    val yearRange: YearRange
+)
+
+@Serializable
+data class PriceRange(
+    val min: Double,
+    val max: Double
+)
+
+@Serializable
+data class YearRange(
+    val min: Int,
+    val max: Int
+)
+
+@Serializable
+data class ErrorResponse(
+    val error: String,
+    val message: String
 )

@@ -4,10 +4,12 @@ import com.partoria.presentation.controllers.AuthController
 import com.partoria.presentation.controllers.PartController
 import com.partoria.domain.usecase.GetCurrentUserUseCase
 import com.partoria.data.models.dto.ErrorResponse
+import com.partoria.data.models.dto.FilterRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -16,7 +18,6 @@ fun Route.partRoutes(
     partController: PartController,
     getCurrentUserUseCase: GetCurrentUserUseCase
 ) {
-    // Public routes
     post("/auth/login") {
         authController.login(call)
     }
@@ -29,7 +30,6 @@ fun Route.partRoutes(
         call.respond(mapOf("status" to "ok", "service" to "Partoria API"))
     }
 
-    // Protected routes
     authenticate("auth-jwt") {
         suspend fun ApplicationCall.getUserId(): Int? {
             val principal = principal<JWTPrincipal>() ?: return null
@@ -53,6 +53,35 @@ fun Route.partRoutes(
             } else {
                 call.respond(HttpStatusCode.NotFound, ErrorResponse("not_found", "Part not found"))
             }
+        }
+
+        get("/parts/{id}/details") {
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_id", "Invalid part ID"))
+                return@get
+            }
+            val part = partController.getPartWithDetails(id)
+            if (part != null) {
+                call.respond(part)
+            } else {
+                call.respond(HttpStatusCode.NotFound, ErrorResponse("not_found", "Part not found"))
+            }
+        }
+
+        post("/parts/filter") {
+            try {
+                val filter = call.receive<FilterRequest>()
+                val result = partController.getFilteredParts(filter)
+                call.respond(result)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_filter", e.message ?: "Invalid filter parameters"))
+            }
+        }
+
+        get("/parts/filters/meta") {
+            val meta = partController.getFiltersMeta()
+            call.respond(meta)
         }
 
         get("/favorites") {
