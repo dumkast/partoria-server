@@ -6,6 +6,7 @@ import com.partoria.domain.model.User
 import com.partoria.domain.repository.AuthRepository
 import com.partoria.security.JwtConfig
 import com.partoria.security.PasswordHasher
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -21,5 +22,18 @@ class AuthRepositoryImpl : AuthRepository {
     override suspend fun getUserByUsername(username: String): User? = newSuspendedTransaction {
         UserTable.selectAll().where { UserTable.username eq username }.firstOrNull()
             ?.let { User(it[UserTable.id], it[UserTable.username], it[UserTable.role]) }
+    }
+
+    override suspend fun register(username: String, password: String): Boolean = newSuspendedTransaction {
+        val existing = UserTable.selectAll().where { UserTable.username eq username }.firstOrNull()
+        if (existing != null) {
+            return@newSuspendedTransaction false
+        }
+        UserTable.insert {
+            it[UserTable.username] = username
+            it[UserTable.passwordHash] = PasswordHasher.hash(password)
+            it[UserTable.role] = "user"
+        }
+        return@newSuspendedTransaction true
     }
 }

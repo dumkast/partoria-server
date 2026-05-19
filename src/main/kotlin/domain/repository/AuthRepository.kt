@@ -6,4 +6,5 @@ import com.partoria.domain.model.User
 interface AuthRepository {
     suspend fun authenticate(username: String, password: String): AuthUser?
     suspend fun getUserByUsername(username: String): User?
+    suspend fun register(username: String, password: String): Boolean
 }

@@ -21,6 +21,10 @@ fun Route.partRoutes(
         authController.login(call)
     }
 
+    post("/auth/register") {
+        authController.register(call)
+    }
+
     get("/health") {
         call.respond(mapOf("status" to "ok", "service" to "Partoria API"))
     }

@@ -31,3 +31,14 @@ data class ErrorResponse(
     val error: String,
     val message: String
 )
+@Serializable
+data class RegisterRequest(
+    val username: String,
+    val password: String
+)
+
+@Serializable
+data class RegisterResponse(
+    val message: String,
+    val username: String
+)
