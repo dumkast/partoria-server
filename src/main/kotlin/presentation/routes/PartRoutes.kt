@@ -146,5 +146,27 @@ fun Route.partRoutes(
             partController.updatePart(request)
             call.respond(mapOf("message" to "Part updated"))
         }
+
+        delete("/admin/parts/{id}") {
+            if (!call.isAdmin()) {
+                call.respond(HttpStatusCode.Forbidden, ErrorResponse("forbidden", "Admin access required"))
+                return@delete
+            }
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_id", "Invalid part ID"))
+                return@delete
+            }
+            try {
+                partController.deletePart(id)
+                call.respond(mapOf("message" to "Part deleted"))
+            } catch (e: Exception) {
+                if (e.message?.contains("not found") == true) {
+                    call.respond(HttpStatusCode.NotFound, ErrorResponse("not_found", e.message ?: "Part not found"))
+                } else {
+                    throw e
+                }
+            }
+        }
     }
 }

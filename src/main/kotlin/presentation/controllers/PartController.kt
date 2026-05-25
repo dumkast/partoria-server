@@ -14,7 +14,8 @@ class PartController(
     private val getFiltersMetaUseCase: GetFiltersMetaUseCase,
     private val getSearchPartsUseCase: GetSearchPartsUseCase,
     private val createPartUseCase: CreatePartUseCase,
-    private val updatePartUseCase: UpdatePartUseCase
+    private val updatePartUseCase: UpdatePartUseCase,
+    private val deletePartUseCase: DeletePartUseCase
 ) {
     suspend fun getAllParts(): List<PartResponse> {
         return getAllPartsUseCase().map { toResponse(it) }
@@ -75,5 +76,9 @@ class PartController(
 
     suspend fun updatePart(request: UpdatePartRequest) {
         updatePartUseCase(request)
+    }
+
+    suspend fun deletePart(id: Int) {
+        deletePartUseCase(id)
     }
 }

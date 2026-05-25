@@ -18,4 +18,5 @@ interface PartRepository {
     suspend fun searchParts(query: String): PartsResponse
     suspend fun createPart(part: CreatePartRequest): Int
     suspend fun updatePart(part: UpdatePartRequest)
+    suspend fun deletePart(id: Int)
 }

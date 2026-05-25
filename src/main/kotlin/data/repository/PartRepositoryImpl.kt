@@ -188,4 +188,12 @@ class PartRepositoryImpl : PartRepository {
             }
         }
     }
+
+    override suspend fun deletePart(id: Int): Unit = newSuspendedTransaction {
+        val partExists = PartTable.selectAll().where { PartTable.id eq id }.count() > 0
+        if (!partExists) error("Part with id $id not found")
+
+        PartDetailTable.deleteWhere { PartDetailTable.partId eq id }
+        PartTable.deleteWhere { PartTable.id eq id }
+    }
 }
