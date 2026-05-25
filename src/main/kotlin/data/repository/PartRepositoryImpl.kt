@@ -167,4 +167,25 @@ class PartRepositoryImpl : PartRepository {
 
         partId
     }
+
+    override suspend fun updatePart(part: UpdatePartRequest) = newSuspendedTransaction {
+        PartTable.update({ PartTable.id eq part.id }) {
+            it[name] = part.name
+            it[category] = part.category
+            it[brand] = part.brand
+            it[price] = part.price
+            it[specs] = part.specs
+            it[releaseYear] = part.releaseYear
+        }
+
+        PartDetailTable.deleteWhere { PartDetailTable.partId eq part.id }
+
+        part.details.forEach { detail ->
+            PartDetailTable.insert {
+                it[PartDetailTable.partId] = part.id
+                it[specification] = detail.specification
+                it[value] = detail.value
+            }
+        }
+    }
 }

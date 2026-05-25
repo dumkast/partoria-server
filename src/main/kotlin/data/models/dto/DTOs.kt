@@ -80,6 +80,18 @@ data class PartDetailRequest(
 )
 
 @Serializable
+data class UpdatePartRequest(
+    val id: Int,
+    val name: String,
+    val category: String,
+    val brand: String,
+    val price: Double,
+    val specs: String,
+    val releaseYear: Int,
+    val details: List<PartDetailRequest> = emptyList()
+)
+
+@Serializable
 data class FiltersMetaResponse(
     val categories: List<String>,
     val brands: List<String>,

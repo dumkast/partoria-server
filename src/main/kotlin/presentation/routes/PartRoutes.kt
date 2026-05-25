@@ -6,6 +6,7 @@ import com.partoria.presentation.controllers.PartController
 import com.partoria.domain.usecase.GetCurrentUserUseCase
 import com.partoria.data.models.dto.ErrorResponse
 import com.partoria.data.models.dto.FilterRequest
+import com.partoria.data.models.dto.UpdatePartRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -134,6 +135,16 @@ fun Route.partRoutes(
             val request = call.receive<CreatePartRequest>()
             val id = partController.createPart(request)
             call.respond(HttpStatusCode.Created, mapOf("message" to "Part created with id: $id"))
+        }
+
+        put("/admin/parts") {
+            if (!call.isAdmin()) {
+                call.respond(HttpStatusCode.Forbidden, ErrorResponse("forbidden", "Admin access required"))
+                return@put
+            }
+            val request = call.receive<UpdatePartRequest>()
+            partController.updatePart(request)
+            call.respond(mapOf("message" to "Part updated"))
         }
     }
 }
