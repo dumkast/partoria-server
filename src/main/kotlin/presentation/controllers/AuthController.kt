@@ -6,6 +6,7 @@ import com.partoria.data.models.dto.LoginResponse
 import com.partoria.data.models.dto.ErrorResponse
 import com.partoria.data.models.dto.RegisterRequest
 import com.partoria.data.models.dto.RegisterResponse
+import com.partoria.domain.usecase.GetCurrentUserUseCase
 import com.partoria.domain.usecase.RegisterUseCase
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,14 +15,16 @@ import io.ktor.server.response.*
 
 class AuthController(
     private val loginUseCase: LoginUseCase,
-    private val registerUseCase: RegisterUseCase
+    private val registerUseCase: RegisterUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase
 ) {
     suspend fun login(call: ApplicationCall) {
         try {
             val request = call.receive<LoginRequest>()
             val authUser = loginUseCase(request.username, request.password)
             if (authUser != null) {
-                call.respond(HttpStatusCode.OK, LoginResponse(authUser.token, authUser.username))
+                val user = getCurrentUserUseCase(request.username)
+                call.respond(HttpStatusCode.OK, LoginResponse(authUser.token, authUser.username, user?.role ?: "user"))
             } else {
                 call.respond(HttpStatusCode.Unauthorized, ErrorResponse("invalid_credentials", "Invalid credentials"))
             }

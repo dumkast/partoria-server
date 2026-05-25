@@ -70,7 +70,7 @@ fun Application.module() {
     val updatePartUseCase = UpdatePartUseCase(partRepository)
     val deletePartUseCase = DeletePartUseCase(partRepository)
 
-    val authController = AuthController(loginUseCase, registerUseCase)
+    val authController = AuthController(loginUseCase, registerUseCase, getCurrentUserUseCase)
     val partController = PartController(
         getAllPartsUseCase,
         getPartWithDetailsUseCase,
