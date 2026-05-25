@@ -41,20 +41,6 @@ fun Route.partRoutes(
             call.respond(partController.getAllParts())
         }
 
-        get("/parts/{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-            if (id == null) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_id", "Invalid part ID"))
-                return@get
-            }
-            val part = partController.getPartById(id)
-            if (part != null) {
-                call.respond(part)
-            } else {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse("not_found", "Part not found"))
-            }
-        }
-
         get("/parts/{id}/details") {
             val id = call.parameters["id"]?.toIntOrNull()
             if (id == null) {
@@ -125,13 +111,11 @@ fun Route.partRoutes(
 
         get("/parts/search") {
             val query = call.request.queryParameters["q"] ?: ""
-            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-            val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: 20
             if (query.isBlank()) {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_query", "Search query cannot be empty"))
                 return@get
             }
-            call.respond(partController.searchParts(query, page, pageSize))
+            call.respond(partController.searchParts(query))
         }
     }
 }

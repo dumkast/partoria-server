@@ -34,7 +34,6 @@ data class PartResponse(
     val brand: String,
     val price: Double,
     val specs: String,
-    val imageUrl: String,
     val releaseYear: Int,
     val details: List<PartDetailResponse> = emptyList()
 )
@@ -55,18 +54,12 @@ data class FilterRequest(
     val minYear: Int? = null,
     val maxYear: Int? = null,
     val sortBy: String? = null,
-    val sortDirection: String? = null,
-    val page: Int = 1,
-    val pageSize: Int = 20
+    val sortDirection: String? = null
 )
 
 @Serializable
-data class FilterResponse(
-    val items: List<PartResponse>,
-    val totalCount: Int,
-    val page: Int,
-    val pageSize: Int,
-    val totalPages: Int
+data class PartsResponse(
+    val items: List<PartResponse>
 )
 
 @Serializable
@@ -93,11 +86,4 @@ data class YearRange(
 data class ErrorResponse(
     val error: String,
     val message: String
-)
-
-@Serializable
-data class SearchRequest(
-    val query: String,
-    val page: Int = 1,
-    val pageSize: Int = 20
 )

@@ -58,7 +58,6 @@ fun Application.module() {
     val getCurrentUserUseCase = GetCurrentUserUseCase(authRepository)
 
     val getAllPartsUseCase = GetAllPartsUseCase(partRepository)
-    val getPartByIdUseCase = GetPartByIdUseCase(partRepository)
     val getPartWithDetailsUseCase = GetPartWithDetailsUseCase(partRepository)
     val addToFavoritesUseCase = AddToFavoritesUseCase(partRepository)
     val removeFromFavoritesUseCase = RemoveFromFavoritesUseCase(partRepository)
@@ -70,7 +69,6 @@ fun Application.module() {
     val authController = AuthController(loginUseCase, registerUseCase)
     val partController = PartController(
         getAllPartsUseCase,
-        getPartByIdUseCase,
         getPartWithDetailsUseCase,
         addToFavoritesUseCase,
         removeFromFavoritesUseCase,

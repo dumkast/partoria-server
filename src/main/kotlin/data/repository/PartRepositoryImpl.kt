@@ -17,12 +17,6 @@ class PartRepositoryImpl : PartRepository {
         PartTable.selectAll().map { row -> mapRowToPart(row) }
     }
 
-    override suspend fun getPartById(id: Int): ComputerPart? = newSuspendedTransaction {
-        PartTable.selectAll().where { PartTable.id eq id }
-            .firstOrNull()
-            ?.let { mapRowToPart(it) }
-    }
-
     override suspend fun getPartWithDetails(id: Int): ComputerPart? = newSuspendedTransaction {
         val partRow = PartTable.selectAll().where { PartTable.id eq id }.firstOrNull() ?: return@newSuspendedTransaction null
 
@@ -39,7 +33,7 @@ class PartRepositoryImpl : PartRepository {
         mapRowToPart(partRow).copy(details = details)
     }
 
-    override suspend fun getFilteredParts(filter: FilterRequest): FilterResponse = newSuspendedTransaction {
+    override suspend fun getFilteredParts(filter: FilterRequest): PartsResponse = newSuspendedTransaction {
         var query = PartTable.selectAll()
 
         if (!filter.categories.isNullOrEmpty()) {
@@ -64,12 +58,7 @@ class PartRepositoryImpl : PartRepository {
         val sortOrder = if (filter.sortDirection == "desc") SortOrder.DESC else SortOrder.ASC
         query = query.orderBy(sortColumn to sortOrder)
 
-        val totalCount = query.count()
-        val offset = (filter.page - 1) * filter.pageSize
-        query = query.limit(filter.pageSize, offset.toLong())
-
         val domainItems = query.map { row -> mapRowToPart(row) }
-
         val responseItems = domainItems.map { part ->
             PartResponse(
                 id = part.id,
@@ -78,19 +67,11 @@ class PartRepositoryImpl : PartRepository {
                 brand = part.brand,
                 price = part.price,
                 specs = part.specs,
-                imageUrl = part.imageUrl,
                 releaseYear = part.releaseYear,
                 details = emptyList()
             )
         }
-
-        FilterResponse(
-            items = responseItems,
-            totalCount = totalCount.toInt(),
-            page = filter.page,
-            pageSize = filter.pageSize,
-            totalPages = ((totalCount + filter.pageSize - 1) / filter.pageSize).toInt()
-        )
+        PartsResponse(items = responseItems)
     }
 
     override suspend fun getFiltersMeta(): FiltersMetaResponse = newSuspendedTransaction {
@@ -147,32 +128,22 @@ class PartRepositoryImpl : PartRepository {
             brand = row[PartTable.brand],
             price = row[PartTable.price],
             specs = row[PartTable.specs],
-            imageUrl = row[PartTable.imageUrl],
             releaseYear = row[PartTable.releaseYear]
         )
     }
 
-    override suspend fun searchParts(query: String, page: Int, pageSize: Int): FilterResponse = newSuspendedTransaction {
-        var queryBuilder = PartTable.selectAll().where { PartTable.name.lowerCase() like "%${query.lowercase()}%" }
-        val totalCount = queryBuilder.count()
-        val offset = (page - 1) * pageSize
-        queryBuilder = queryBuilder.limit(pageSize, offset.toLong())
+    override suspend fun searchParts(query: String): PartsResponse = newSuspendedTransaction {
+        val results = PartTable.selectAll()
+            .where { PartTable.name.lowerCase() like "%${query.lowercase()}%" }
+            .map { row -> mapRowToPart(row) }
 
-        val domainItems = queryBuilder.map { row -> mapRowToPart(row) }
-        val responseItems = domainItems.map { part ->
+        val responseItems = results.map { part ->
             PartResponse(
                 id = part.id, name = part.name, category = part.category,
                 brand = part.brand, price = part.price, specs = part.specs,
-                imageUrl = part.imageUrl, releaseYear = part.releaseYear
+                releaseYear = part.releaseYear
             )
         }
-
-        FilterResponse(
-            items = responseItems,
-            totalCount = totalCount.toInt(),
-            page = page,
-            pageSize = pageSize,
-            totalPages = ((totalCount + pageSize - 1) / pageSize).toInt()
-        )
+        PartsResponse(items = responseItems)
     }
 }

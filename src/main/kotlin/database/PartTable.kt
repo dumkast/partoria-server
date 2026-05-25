@@ -8,6 +8,5 @@ object PartTable : IntIdTable("computer_parts") {
     val brand = varchar("brand", 100)
     val price = double("price")
     val specs = text("specs")
-    val imageUrl = varchar("image_url", 500)
     val releaseYear = integer("release_year")
 }

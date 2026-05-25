@@ -6,7 +6,6 @@ import com.partoria.domain.model.ComputerPart
 
 class PartController(
     private val getAllPartsUseCase: GetAllPartsUseCase,
-    private val getPartByIdUseCase: GetPartByIdUseCase,
     private val getPartWithDetailsUseCase: GetPartWithDetailsUseCase,
     private val addToFavoritesUseCase: AddToFavoritesUseCase,
     private val removeFromFavoritesUseCase: RemoveFromFavoritesUseCase,
@@ -19,15 +18,11 @@ class PartController(
         return getAllPartsUseCase().map { toResponse(it) }
     }
 
-    suspend fun getPartById(id: Int): PartResponse? {
-        return getPartByIdUseCase(id)?.let { toResponse(it) }
-    }
-
     suspend fun getPartWithDetails(id: Int): PartResponse? {
         return getPartWithDetailsUseCase(id)?.let { toResponseWithDetails(it) }
     }
 
-    suspend fun getFilteredParts(filter: FilterRequest): FilterResponse {
+    suspend fun getFilteredParts(filter: FilterRequest): PartsResponse {
         return getFilteredPartsUseCase(filter)
     }
 
@@ -54,7 +49,6 @@ class PartController(
         brand = part.brand,
         price = part.price,
         specs = part.specs,
-        imageUrl = part.imageUrl,
         releaseYear = part.releaseYear
     )
 
@@ -65,12 +59,11 @@ class PartController(
         brand = part.brand,
         price = part.price,
         specs = part.specs,
-        imageUrl = part.imageUrl,
         releaseYear = part.releaseYear,
         details = part.details.map { PartDetailResponse(it.id, it.specification, it.value) }
     )
 
-    suspend fun searchParts(query: String, page: Int, pageSize: Int): FilterResponse {
-        return getSearchPartsUseCase(query, page, pageSize)
+    suspend fun searchParts(query: String): PartsResponse {
+        return getSearchPartsUseCase(query)
     }
 }
