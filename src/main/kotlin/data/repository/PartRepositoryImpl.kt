@@ -68,10 +68,8 @@ class PartRepositoryImpl : PartRepository {
         val offset = (filter.page - 1) * filter.pageSize
         query = query.limit(filter.pageSize, offset.toLong())
 
-        // 1. Извлекаем из базы данных список доменных моделей ComputerPart
         val domainItems = query.map { row -> mapRowToPart(row) }
 
-        // 2. Исправлено: Мапим доменные модели в PartResponse, чтобы FilterResponse скомпилировался без ошибок!
         val responseItems = domainItems.map { part ->
             PartResponse(
                 id = part.id,
@@ -82,12 +80,12 @@ class PartRepositoryImpl : PartRepository {
                 specs = part.specs,
                 imageUrl = part.imageUrl,
                 releaseYear = part.releaseYear,
-                details = emptyList() // В общем списке деталей изначально нет
+                details = emptyList()
             )
         }
 
         FilterResponse(
-            items = responseItems, // Теперь типы совпадают: ожидался List<PartResponse> и передан List<PartResponse>
+            items = responseItems,
             totalCount = totalCount.toInt(),
             page = filter.page,
             pageSize = filter.pageSize,
@@ -151,6 +149,30 @@ class PartRepositoryImpl : PartRepository {
             specs = row[PartTable.specs],
             imageUrl = row[PartTable.imageUrl],
             releaseYear = row[PartTable.releaseYear]
+        )
+    }
+
+    override suspend fun searchParts(query: String, page: Int, pageSize: Int): FilterResponse = newSuspendedTransaction {
+        var queryBuilder = PartTable.selectAll().where { PartTable.name.lowerCase() like "%${query.lowercase()}%" }
+        val totalCount = queryBuilder.count()
+        val offset = (page - 1) * pageSize
+        queryBuilder = queryBuilder.limit(pageSize, offset.toLong())
+
+        val domainItems = queryBuilder.map { row -> mapRowToPart(row) }
+        val responseItems = domainItems.map { part ->
+            PartResponse(
+                id = part.id, name = part.name, category = part.category,
+                brand = part.brand, price = part.price, specs = part.specs,
+                imageUrl = part.imageUrl, releaseYear = part.releaseYear
+            )
+        }
+
+        FilterResponse(
+            items = responseItems,
+            totalCount = totalCount.toInt(),
+            page = page,
+            pageSize = pageSize,
+            totalPages = ((totalCount + pageSize - 1) / pageSize).toInt()
         )
     }
 }

@@ -14,4 +14,5 @@ interface PartRepository {
     suspend fun addToFavorites(userId: Int, partId: Int)
     suspend fun removeFromFavorites(userId: Int, partId: Int)
     suspend fun getFavorites(userId: Int): List<ComputerPart>
+    suspend fun searchParts(query: String, page: Int, pageSize: Int): FilterResponse
 }

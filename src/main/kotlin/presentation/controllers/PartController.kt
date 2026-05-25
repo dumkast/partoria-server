@@ -12,7 +12,8 @@ class PartController(
     private val removeFromFavoritesUseCase: RemoveFromFavoritesUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
     private val getFilteredPartsUseCase: GetFilteredPartsUseCase,
-    private val getFiltersMetaUseCase: GetFiltersMetaUseCase
+    private val getFiltersMetaUseCase: GetFiltersMetaUseCase,
+    private val getSearchPartsUseCase: GetSearchPartsUseCase
 ) {
     suspend fun getAllParts(): List<PartResponse> {
         return getAllPartsUseCase().map { toResponse(it) }
@@ -68,4 +69,8 @@ class PartController(
         releaseYear = part.releaseYear,
         details = part.details.map { PartDetailResponse(it.id, it.specification, it.value) }
     )
+
+    suspend fun searchParts(query: String, page: Int, pageSize: Int): FilterResponse {
+        return getSearchPartsUseCase(query, page, pageSize)
+    }
 }

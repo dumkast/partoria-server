@@ -94,3 +94,10 @@ data class ErrorResponse(
     val error: String,
     val message: String
 )
+
+@Serializable
+data class SearchRequest(
+    val query: String,
+    val page: Int = 1,
+    val pageSize: Int = 20
+)

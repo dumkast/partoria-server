@@ -122,5 +122,16 @@ fun Route.partRoutes(
             partController.removeFromFavorites(userId, partId)
             call.respond(mapOf("message" to "Removed from favorites"))
         }
+
+        get("/parts/search") {
+            val query = call.request.queryParameters["q"] ?: ""
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: 20
+            if (query.isBlank()) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("invalid_query", "Search query cannot be empty"))
+                return@get
+            }
+            call.respond(partController.searchParts(query, page, pageSize))
+        }
     }
 }

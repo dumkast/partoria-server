@@ -16,7 +16,7 @@ import com.partoria.domain.usecase.*
 import com.partoria.presentation.controllers.AuthController
 import com.partoria.presentation.controllers.PartController
 import com.partoria.presentation.routes.partRoutes
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insert 
 
 fun main() {
     println("Starting Partoria Server...")
@@ -65,6 +65,7 @@ fun Application.module() {
     val getFavoritesUseCase = GetFavoritesUseCase(partRepository)
     val getFilteredPartsUseCase = GetFilteredPartsUseCase(partRepository)
     val getFiltersMetaUseCase = GetFiltersMetaUseCase(partRepository)
+    val getSearchPartsUseCase = GetSearchPartsUseCase(partRepository)
 
     val authController = AuthController(loginUseCase, registerUseCase)
     val partController = PartController(
@@ -75,7 +76,8 @@ fun Application.module() {
         removeFromFavoritesUseCase,
         getFavoritesUseCase,
         getFilteredPartsUseCase,
-        getFiltersMetaUseCase
+        getFiltersMetaUseCase,
+        getSearchPartsUseCase
     )
 
     routing {
