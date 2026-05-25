@@ -1,5 +1,6 @@
 package com.partoria.domain.repository
 
+import com.partoria.data.models.dto.CreatePartRequest
 import com.partoria.domain.model.ComputerPart
 import com.partoria.data.models.dto.FilterRequest
 import com.partoria.data.models.dto.FiltersMetaResponse
@@ -14,4 +15,5 @@ interface PartRepository {
     suspend fun removeFromFavorites(userId: Int, partId: Int)
     suspend fun getFavorites(userId: Int): List<ComputerPart>
     suspend fun searchParts(query: String): PartsResponse
+    suspend fun createPart(part: CreatePartRequest): Int
 }

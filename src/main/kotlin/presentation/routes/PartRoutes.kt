@@ -1,5 +1,6 @@
 package com.partoria.presentation.routes
 
+import com.partoria.data.models.dto.CreatePartRequest
 import com.partoria.presentation.controllers.AuthController
 import com.partoria.presentation.controllers.PartController
 import com.partoria.domain.usecase.GetCurrentUserUseCase
@@ -35,6 +36,13 @@ fun Route.partRoutes(
             val principal = principal<JWTPrincipal>() ?: return null
             val username = principal.payload.subject ?: return null
             return getCurrentUserUseCase(username)?.id
+        }
+
+        suspend fun ApplicationCall.isAdmin(): Boolean {
+            val principal = principal<JWTPrincipal>() ?: return false
+            val username = principal.payload.subject ?: return false
+            val user = getCurrentUserUseCase(username)
+            return user?.role == "admin"
         }
 
         get("/parts") {
@@ -116,6 +124,16 @@ fun Route.partRoutes(
                 return@get
             }
             call.respond(partController.searchParts(query))
+        }
+
+        post("/admin/parts") {
+            if (!call.isAdmin()) {
+                call.respond(HttpStatusCode.Forbidden, ErrorResponse("forbidden", "Admin access required"))
+                return@post
+            }
+            val request = call.receive<CreatePartRequest>()
+            val id = partController.createPart(request)
+            call.respond(HttpStatusCode.Created, mapOf("message" to "Part created with id: $id"))
         }
     }
 }

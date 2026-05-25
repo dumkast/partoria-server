@@ -146,4 +146,25 @@ class PartRepositoryImpl : PartRepository {
         }
         PartsResponse(items = responseItems)
     }
+
+    override suspend fun createPart(part: CreatePartRequest): Int = newSuspendedTransaction {
+        val partId = PartTable.insertAndGetId {
+            it[name] = part.name
+            it[category] = part.category
+            it[brand] = part.brand
+            it[price] = part.price
+            it[specs] = part.specs
+            it[releaseYear] = part.releaseYear
+        }.value
+
+        part.details.forEach { detail ->
+            PartDetailTable.insert {
+                it[PartDetailTable.partId] = partId
+                it[specification] = detail.specification
+                it[value] = detail.value
+            }
+        }
+
+        partId
+    }
 }

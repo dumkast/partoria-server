@@ -66,6 +66,8 @@ fun Application.module() {
     val getFiltersMetaUseCase = GetFiltersMetaUseCase(partRepository)
     val getSearchPartsUseCase = GetSearchPartsUseCase(partRepository)
 
+    val createPartUseCase = CreatePartUseCase(partRepository)
+
     val authController = AuthController(loginUseCase, registerUseCase)
     val partController = PartController(
         getAllPartsUseCase,
@@ -75,7 +77,8 @@ fun Application.module() {
         getFavoritesUseCase,
         getFilteredPartsUseCase,
         getFiltersMetaUseCase,
-        getSearchPartsUseCase
+        getSearchPartsUseCase,
+        createPartUseCase
     )
 
     routing {

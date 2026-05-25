@@ -12,7 +12,8 @@ class PartController(
     private val getFavoritesUseCase: GetFavoritesUseCase,
     private val getFilteredPartsUseCase: GetFilteredPartsUseCase,
     private val getFiltersMetaUseCase: GetFiltersMetaUseCase,
-    private val getSearchPartsUseCase: GetSearchPartsUseCase
+    private val getSearchPartsUseCase: GetSearchPartsUseCase,
+    private val createPartUseCase: CreatePartUseCase
 ) {
     suspend fun getAllParts(): List<PartResponse> {
         return getAllPartsUseCase().map { toResponse(it) }
@@ -65,5 +66,9 @@ class PartController(
 
     suspend fun searchParts(query: String): PartsResponse {
         return getSearchPartsUseCase(query)
+    }
+
+    suspend fun createPart(request: CreatePartRequest): Int {
+        return createPartUseCase(request)
     }
 }

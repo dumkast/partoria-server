@@ -63,6 +63,23 @@ data class PartsResponse(
 )
 
 @Serializable
+data class CreatePartRequest(
+    val name: String,
+    val category: String,
+    val brand: String,
+    val price: Double,
+    val specs: String,
+    val releaseYear: Int,
+    val details: List<PartDetailRequest> = emptyList()
+)
+
+@Serializable
+data class PartDetailRequest(
+    val specification: String,
+    val value: String
+)
+
+@Serializable
 data class FiltersMetaResponse(
     val categories: List<String>,
     val brands: List<String>,
