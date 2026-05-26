@@ -36,6 +36,14 @@ class PartRepositoryImpl : PartRepository {
     override suspend fun getFilteredParts(filter: FilterRequest): PartsResponse = newSuspendedTransaction {
         var query = PartTable.selectAll()
 
+        if (!filter.searchQuery.isNullOrBlank()) {
+            val searchLower = "%${filter.searchQuery.lowercase()}%"
+            query = query.andWhere {
+                (PartTable.name.lowerCase() like searchLower) or
+                        (PartTable.brand.lowerCase() like searchLower)
+            }
+        }
+
         if (!filter.categories.isNullOrEmpty()) {
             query = query.andWhere { PartTable.category inList filter.categories }
         }
@@ -133,18 +141,7 @@ class PartRepositoryImpl : PartRepository {
     }
 
     override suspend fun searchParts(query: String): PartsResponse = newSuspendedTransaction {
-        val results = PartTable.selectAll()
-            .where { PartTable.name.lowerCase() like "%${query.lowercase()}%" }
-            .map { row -> mapRowToPart(row) }
-
-        val responseItems = results.map { part ->
-            PartResponse(
-                id = part.id, name = part.name, category = part.category,
-                brand = part.brand, price = part.price, specs = part.specs,
-                releaseYear = part.releaseYear
-            )
-        }
-        PartsResponse(items = responseItems)
+        getFilteredParts(FilterRequest(searchQuery = query))
     }
 
     override suspend fun createPart(part: CreatePartRequest): Int = newSuspendedTransaction {
